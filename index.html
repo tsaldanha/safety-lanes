@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanespotter</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+    <div id="map">
+
+    </div>
+</body>
+    <script>
+        $(document).ready(async ()=>{
+            var ratings = await $.getJSON('/Ratings.geojson');
+
+            var average = Object.assign({},ratings);
+            average.features = average.features.filter( item => {
+                return item.properties.SafetyRating == "Average";
+            })
+            
+            var VerySafe = Object.assign({},ratings);
+            VerySafe.features = VerySafe.features.filter( item => {
+                return item.properties.SafetyRating == "Very Safe";
+            })
+            
+            var Safe = Object.assign({},ratings);
+            Safe.features = Safe.features.filter( item => {
+                return item.properties.SafetyRating == "Safe";
+            });
+
+            var Caution = Object.assign({},ratings);
+            Caution.features = Caution.features.filter( item => {
+                return item.properties.SafetyRating == "Use Caution";
+            });
+
+            var Avoid = Object.assign({},ratings);
+            Avoid.features = Avoid.features.filter( item => {
+                return item.properties.SafetyRating == "Avoid";
+            });
+
+            mapboxgl.accessToken = 'pk.eyJ1IjoidHNhbGRhbmhhIiwiYSI6ImNqZ2p4cDhqZjFrOGkyd3FvaXVzdmN2MHMifQ.e0i8Mrl2Z738v3FPQsH_0w';
+            var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-46.641224,-23.603993],
+            zoom: 15
+            });
+
+            map.on('load', function () {
+                map.addSource('safety-verysafe', {
+                    type: 'geojson',
+                    data: VerySafe
+                    
+                });
+                map.addSource('safety-safe', {
+                    type: 'geojson',
+                    data: Safe
+                });
+                map.addSource('safety-average', {
+                    type: 'geojson',
+                    data: average
+                });
+                map.addSource('safety-caution', {
+                    type: 'geojson',
+                    data: Caution
+                });
+                map.addSource('safety-avoid', {
+                    type: 'geojson',
+                    data: Avoid
+                });
+
+                map.addLayer({
+                    'id': 'safety-vs',
+                    'type': 'line',
+                    'source': 'safety-verysafe',
+                    'paint': {
+                        'line-color': '#13c242',
+                        'line-width': 3
+                    },
+                });
+                map.addLayer({
+                    'id': 'safety-s',
+                    'type': 'line',
+                    'source': 'safety-safe',
+                    'paint': {
+                        'line-color': '#09aba5',
+                        'line-width': 3
+                    },
+                });
+                map.addLayer({
+                    'id': 'safety-a',
+                    'type': 'line',
+                    'source': 'safety-average',
+                    'paint': {
+                        'line-color': '#166be0',
+                        'line-width': 3
+                    },
+                });
+                map.addLayer({
+                    'id': 'safety-c',
+                    'type': 'line',
+                    'source': 'safety-caution',
+                    'paint': {
+                        'line-color': '#c1d111',
+                        'line-width': 3
+                    },
+                });
+                map.addLayer({
+                    'id': 'safety-v',
+                    'type': 'line',
+                    'source': 'safety-avoid',
+                    'paint': {
+                        'line-color': '#e80000',
+                        'line-width': 3
+                    },
+                });
+                
+                map.on('click', 'safety-vs', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    
+                    alert(description);
+                });
+                map.on('click', 'safety-s', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    
+                    alert(description);
+                });
+                map.on('click', 'safety-a', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    
+                    alert(description);
+                });
+                map.on('click', 'safety-c', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    
+                    alert(description);
+                });
+                map.on('click', 'safety-v', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    
+                    alert(description);
+                });
+
+
+
+            });
+        });
+    </script>
+</html>
