@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanespotter</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="utils.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+    <div id="map">
+
+    </div>
+</body>
+    <script>
+        $(document).ready(async ()=>{
+            var ratings = await $.getJSON('Ratings.geojson');
+
+            mapboxgl.accessToken = 'pk.eyJ1IjoidHNhbGRhbmhhIiwiYSI6ImNqZ2p4cDhqZjFrOGkyd3FvaXVzdmN2MHMifQ.e0i8Mrl2Z738v3FPQsH_0w';
+            var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/tsaldanha/ckrp93nwu2fdi18rqnmmwndo3',
+            center: [-46.641224,-23.603993],
+            zoom: 15
+            });
+
+            map.on('load', function () {
+                
+                map.addSource('safety-ratings', {
+                    type: 'geojson',
+                    data: ratings
+                    
+                });
+
+                map.addLayer({
+                    'id': 'safety-rt',
+                    'type': 'line',
+                    'source': 'safety-ratings',
+                    'layout': {
+                        'line-cap' : 'round',
+                        'line-join': 'round',
+                        'visibility': 'visible',
+                    },
+                    'paint': {
+                        'line-color': [
+                            'match',
+                            ['get', 'SafetyRating'],
+                            'Very Safe',
+                            getColor('Very Safe'),
+                            'Safe',
+                            getColor('Safe'),
+                            'Average',
+                            getColor('Average'),
+                            'Use Caution',
+                            getColor('Use Caution'),
+                            'Avoid',
+                            getColor('Avoid'),
+                            '#e55e5e'
+                        ],
+                        'line-width': [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            5,
+                            10
+                        ],
+                        'line-opacity': [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            0.1,
+                            1
+                        ],
+                    },
+                });
+                
+                map.on('click', 'safety-rt', function (e) {
+                    
+                    var description = e.features[0].properties.OBJECTID;
+                    alert(description);
+
+                });    
+            });
+        });
+    </script>
+</html>
